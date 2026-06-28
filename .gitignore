@@ -1,0 +1,6 @@
+# Arquivos gerados pela compilacao do .NET (nao fazem parte do codigo-fonte)
+bin/
+obj/
+
+# Log gerado em tempo de execucao
+log_partida.txt

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Arquivo de projeto (.csproj) do trabalho de Buraco.
+
+    OBSERVACOES IMPORTANTES PARA COMPILAR:
+    - O projeto NAO usa nenhuma biblioteca externa (apenas o System padrao do .NET).
+    - "OutputType = Exe"  -> gera um programa de console executavel.
+    - "TargetFramework"   -> versao do .NET usada para compilar/rodar.
+        Foi usado net10.0 porque foi a versao instalada na maquina de teste.
+        Se voce tiver OUTRA versao instalada (por exemplo net6.0 ou net8.0),
+        basta trocar a linha abaixo para a sua versao. O codigo NAO usa nada
+        especifico de versao, entao ele compila em net6.0, net8.0 ou net10.0.
+    - "Nullable = disable"        -> mantem o codigo mais simples (estilo academico).
+    - "ImplicitUsings = disable"  -> obriga a escrever os "using" explicitamente,
+                                     deixando claro quais bibliotecas cada arquivo usa.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>Buraco</AssemblyName>
+    <RootNamespace>Buraco</RootNamespace>
+  </PropertyGroup>
+
+</Project>
