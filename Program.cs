@@ -3,26 +3,15 @@ using Buraco.Services;
 
 namespace Buraco
 {
-    // ============================================================================
-    // CLASSE: Program  (ponto de entrada do programa)
-    // ----------------------------------------------------------------------------
-    // OBJETIVO DA CLASSE:
-    //   Mostrar o menu, ler a opcao do usuario e disparar a partida de Buraco.
-    //   E a "casca" do programa: nao contem regras do jogo (essas estao nos
-    //   Services). Aqui so cuidamos da interacao com quem esta rodando.
-    // ============================================================================
     class Program
     {
-        // Metodo Main: e por aqui que o programa comeca a executar.
         static void Main(string[] args)
         {
-            // Permite mostrar os simbolos dos naipes (copas, ouros, etc.) na tela.
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
             bool sair = false;
             while (!sair)
             {
-                // ---- Desenha o menu ----
                 Console.WriteLine();
                 Console.WriteLine("============ BURACO - Trabalho de AED ============");
                 Console.WriteLine(" 1 - Jogar uma partida (embaralhamento aleatorio)");
@@ -36,17 +25,20 @@ namespace Buraco
 
                 if (opcao == "1")
                 {
-                    // Usa o relogio do sistema como semente -> partida diferente
-                    // a cada execucao.
-                    JogarPartida(Environment.TickCount);
+                    int semente = new Random().Next();
+                    JogarPartida(semente);
                 }
                 else if (opcao == "2")
                 {
                     Console.Write("Digite a semente (numero inteiro): ");
                     int semente;
-                    if (!int.TryParse(Console.ReadLine(), out semente))
+                    try
                     {
-                        semente = 42; // valor padrao caso o usuario digite algo invalido
+                        semente = int.Parse(Console.ReadLine());
+                    }
+                    catch (Exception)
+                    {
+                        semente = 42;
                         Console.WriteLine("Entrada invalida. Usando a semente padrao 42.");
                     }
                     JogarPartida(semente);
@@ -67,20 +59,15 @@ namespace Buraco
             }
         }
 
-        // ------------------------------------------------------------------
-        // JogarPartida: cria o servico, roda a partida, salva e mostra o log
-        // e, por fim, imprime o resumo final com a pontuacao e o vencedor.
-        // ------------------------------------------------------------------
         static void JogarPartida(int semente)
         {
             Console.WriteLine();
             Console.WriteLine(">> Iniciando partida (semente = " + semente + ")...");
 
             PartidaService ps = new PartidaService(semente);
-            ps.Iniciar();   // distribui as cartas
-            ps.Jogar();     // joga ate o fim e apura a pontuacao
+            ps.Iniciar();
+            ps.Jogar();
 
-            // Tenta salvar o log em arquivo antes de imprimir (Imprimir esvazia a fila).
             try
             {
                 ps.Log.SalvarEmArquivo("log_partida.txt");
@@ -93,7 +80,7 @@ namespace Buraco
 
             Console.WriteLine();
             Console.WriteLine("------------------- LOG DA PARTIDA -------------------");
-            ps.Log.Imprimir(); // imprime tudo na ordem em que aconteceu (FIFO)
+            ps.Log.Imprimir();
 
             Console.WriteLine();
             ps.ImprimirResumoFinal();
@@ -103,10 +90,6 @@ namespace Buraco
             Console.ReadLine();
         }
 
-        // ------------------------------------------------------------------
-        // MostrarRegras: imprime um resumo das regras adotadas, util para
-        // explicar ao professor durante a apresentacao.
-        // ------------------------------------------------------------------
         static void MostrarRegras()
         {
             Console.WriteLine();
