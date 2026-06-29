@@ -2,6 +2,8 @@
 
 Trabalho prático da disciplina **Algoritmos e Estruturas de Dados (AED)** — implementação do jogo de cartas **Buraco para 2 jogadores** em C# console, com ênfase em estruturas de dados implementadas manualmente.
 
+> **Branch `manual`:** esta versão roda em **modo MANUAL (hot-seat)** — os dois jogadores são humanos e jogam no mesmo computador, revezando a vez. O jogo acontece pelas **ações dos jogadores** (comprar, baixar, encaixar, descartar), não por IA automática. A branch `master` mantém a versão automática original.
+
 ---
 
 ## Comandos essenciais
@@ -16,8 +18,8 @@ dotnet run
 # Compilar + rodar direto
 dotnet run --project Buraco.csproj
 
-# Semente fixa para demonstração (sempre termina em BATIDA)
-# Escolha a opção 2 no menu e digite: 100
+# Semente fixa (repete a MESMA distribuição de cartas — útil para testar)
+# Escolha a opção 2 no menu e digite um número, ex.: 100
 ```
 
 **Saídas geradas em tempo de execução** (ignoradas pelo `.gitignore`):
@@ -85,7 +87,7 @@ Se adicionar uma nova funcionalidade que precise de armazenamento, **use as estr
 
 ### Services/
 - **`BaralhoService`** (static) — `CriarBaralhoDuplo()` (104 cartas), `Embaralhar()` Fisher-Yates O(n).
-- **`PartidaService`** — motor principal; fluxo: `Iniciar()` → `Jogar()` → `ExecutarTurno()` → `FaseDeJogos()` → `Apurar()`.
+- **`PartidaService`** — motor principal (modo manual/hot-seat); fluxo: `Iniciar()` → `Jogar()` → `ExecutarTurnoInterativo()` → `FaseDeJogosInterativa()` → `Apurar()`. As jogadas vêm de entradas do usuário; `ValidarNovaSequencia()` valida o que o jogador tenta baixar.
 - **`PontuacaoService`** (static) — `Calcular()` e `Detalhar()`; fórmula: `bonuses de canastras + cartas na mesa − cartas na mão − 100 (sem morto) + 100 (batedor)`.
 - **`LogService`** — envolve `FilaLog`; `Registrar()`, `SalvarEmArquivo()` (não-destrutivo), `Imprimir()` (destrutivo/FIFO).
 
@@ -94,14 +96,18 @@ Se adicionar uma nova funcionalidade que precise de armazenamento, **use as estr
 ## Fluxo de um turno (para entender o `PartidaService`)
 
 ```
-ExecutarTurno()
-  ├─ Comprar()          — 1 carta do Monte (Pilha) ou Lixo inteiro (Pilha)
-  ├─ FaseDeJogos()      — while(houveMudanca): TentarEncaixar + CriarNovosJogos + FecharCanastra
+ExecutarTurnoInterativo()  — modo manual/hot-seat (limpa a tela e passa a vez)
+  ├─ ComprarInterativo()         — jogador escolhe: 1 carta do Monte OU o Lixo inteiro
+  ├─ FaseDeJogosInterativa()     — menu em laço: Baixar / Encaixar / Ver mesa / Encerrar
+  │     ├─ BaixarNovoJogoInterativo()  — ValidarNovaSequencia() + PodeReduzirPara()
+  │     └─ EncaixarInterativo()        — PodeAdicionarAoJogo() + PodeReduzirPara()
   ├─ Checar batida      — PodeReduzirPara(0): exige ComprouMorto + TemCanastra()
-  ├─ EscolherDescarte() — prefere carta isolada de maior valor; nunca descarta curinga
-  ├─ Pegar morto        — se mão ficou vazia pela 1ª vez
+  ├─ DescartarInterativo() — jogador escolhe a carta a descartar (obrigatório)
+  ├─ Pegar morto        — automático se a mão zerar pela 1ª vez
   └─ Checar batida      — novamente após pegar o morto
 ```
+
+Entrada do usuário: `LerInteiro`, `SelecionarUmaCarta`, `SelecionarCartasDaMao` (validam e re-perguntam). `Anunciar()` mostra na tela **e** registra no log (Fila). EOF na entrada encerra a partida com segurança (sem loop).
 
 ---
 
@@ -135,4 +141,6 @@ ExecutarTurno()
 - **[Documentacao/DOCUMENTACAO.md](Documentacao/DOCUMENTACAO.md)** — 7 seções + 33 perguntas e respostas do professor.
 - **[Documentacao/GUIA_APRESENTACAO.md](Documentacao/GUIA_APRESENTACAO.md)** — roteiro de apresentação, frases-chave, checklist.
 
-**Semente de demonstração recomendada:** `100` — termina em BATIDA e exibe os 4 tipos de canastra.
+**Semente:** no modo manual a semente apenas **repete a mesma distribuição** de cartas (útil para testar/depurar); o resultado da partida depende das **jogadas dos jogadores**.
+
+> Nota: `Documentacao/DOCUMENTACAO.md` e `Documentacao/GUIA_APRESENTACAO.md` ainda descrevem o **modo automático** (válidos na branch `master`). As estruturas de dados são as mesmas; só o fluxo de turno mudou.

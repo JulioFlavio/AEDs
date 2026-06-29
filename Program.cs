@@ -25,6 +25,9 @@ namespace Buraco
                 // ---- Desenha o menu ----
                 Console.WriteLine();
                 Console.WriteLine("============ BURACO - Trabalho de AED ============");
+                Console.WriteLine("   Modo MANUAL: 2 jogadores no mesmo computador");
+                Console.WriteLine("           (hot-seat, revezando a vez)");
+                Console.WriteLine("--------------------------------------------------");
                 Console.WriteLine(" 1 - Jogar uma partida (embaralhamento aleatorio)");
                 Console.WriteLine(" 2 - Jogar uma partida (semente fixa - repetivel)");
                 Console.WriteLine(" 3 - Mostrar as regras adotadas no trabalho");
@@ -34,7 +37,12 @@ namespace Buraco
 
                 string opcao = Console.ReadLine();
 
-                if (opcao == "1")
+                // Se a entrada acabou (EOF), encerra para nao ficar em laco infinito.
+                if (opcao == null)
+                {
+                    sair = true;
+                }
+                else if (opcao == "1")
                 {
                     // Usa o relogio do sistema como semente -> partida diferente
                     // a cada execucao.
@@ -68,19 +76,29 @@ namespace Buraco
         }
 
         // ------------------------------------------------------------------
-        // JogarPartida: cria o servico, roda a partida, salva e mostra o log
-        // e, por fim, imprime o resumo final com a pontuacao e o vencedor.
+        // JogarPartida: pergunta os nomes, cria o servico, roda a partida
+        // (modo manual), salva o log e imprime o resumo final.
         // ------------------------------------------------------------------
         static void JogarPartida(int semente)
         {
             Console.WriteLine();
-            Console.WriteLine(">> Iniciando partida (semente = " + semente + ")...");
+            Console.WriteLine(">> Preparando a partida (semente = " + semente + ")...");
+
+            // Pergunta os nomes dos dois jogadores (ENTER usa o nome padrao).
+            Console.Write("Nome do Jogador 1 (ENTER para 'Jogador 1'): ");
+            string n1 = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(n1)) n1 = "Jogador 1";
+
+            Console.Write("Nome do Jogador 2 (ENTER para 'Jogador 2'): ");
+            string n2 = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(n2)) n2 = "Jogador 2";
 
             PartidaService ps = new PartidaService(semente);
-            ps.Iniciar();   // distribui as cartas
-            ps.Jogar();     // joga ate o fim e apura a pontuacao
+            ps.Iniciar(n1.Trim(), n2.Trim());   // distribui as cartas
+            Console.WriteLine(">> Partida iniciada! Boa sorte.");
+            ps.Jogar();                          // joga ate o fim e apura a pontuacao
 
-            // Tenta salvar o log em arquivo antes de imprimir (Imprimir esvazia a fila).
+            // Tenta salvar o log em arquivo (usa MontarTexto, que NAO esvazia a fila).
             try
             {
                 ps.Log.SalvarEmArquivo("log_partida.txt");
@@ -92,11 +110,19 @@ namespace Buraco
             }
 
             Console.WriteLine();
-            Console.WriteLine("------------------- LOG DA PARTIDA -------------------");
-            ps.Log.Imprimir(); // imprime tudo na ordem em que aconteceu (FIFO)
-
-            Console.WriteLine();
             ps.ImprimirResumoFinal();
+
+            // Oferece reproduzir o log inteiro na tela (demonstra o FIFO da Fila,
+            // pois Imprimir vai DESENFILEIRANDO cada evento na ordem em que ocorreu).
+            Console.WriteLine();
+            Console.Write("Deseja ver o log completo (reproducao FIFO da partida)? (s/n): ");
+            string ver = Console.ReadLine();
+            if (ver != null && (ver.Trim().ToLower() == "s" || ver.Trim().ToLower() == "sim"))
+            {
+                Console.WriteLine();
+                Console.WriteLine("------------------- LOG DA PARTIDA -------------------");
+                ps.Log.Imprimir(); // imprime tudo na ordem em que aconteceu (FIFO)
+            }
 
             Console.WriteLine();
             Console.Write("Pressione ENTER para voltar ao menu...");
@@ -128,6 +154,15 @@ namespace Buraco
             Console.WriteLine("- Pontos = bonus de canastras + cartas na mesa - cartas na mao");
             Console.WriteLine("           - 100 (se nao pegou o morto) + 100 (se bateu).");
             Console.WriteLine("==========================================");
+            Console.WriteLine();
+            Console.WriteLine("===== COMO JOGAR (MODO MANUAL / HOT-SEAT) =====");
+            Console.WriteLine("- Os dois jogadores usam o MESMO teclado, revezando a vez.");
+            Console.WriteLine("- No seu turno: 1) COMPRE (monte ou lixo); 2) BAIXE/ENCAIXE jogos");
+            Console.WriteLine("  se quiser; 3) DESCARTE uma carta para encerrar o turno.");
+            Console.WriteLine("- As cartas da mao aparecem numeradas, ex.: [0]A(copas) [1]5(copas).");
+            Console.WriteLine("  Para baixar um jogo, digite os numeros separados por espaco (ex.: 0 1 2).");
+            Console.WriteLine("- A tela e limpa a cada troca de jogador para preservar o sigilo da mao.");
+            Console.WriteLine("===============================================");
             Console.WriteLine();
             Console.Write("Pressione ENTER para voltar ao menu...");
             Console.ReadLine();

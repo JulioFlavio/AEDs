@@ -2,7 +2,9 @@
 
 Implementação do jogo de cartas **Buraco** para **2 jogadores**, em **C# (aplicação console)**, usando **Programação Orientada a Objetos** e **estruturas de dados implementadas manualmente** (Pilha, Fila e Lista encadeada).
 
-> O programa roda em **modo automático**: o próprio sistema joga pelos dois jogadores usando regras simples de decisão, registra **todos** os acontecimentos em um **log** (uma Fila) e, ao final, apura a pontuação e mostra o vencedor. Isso garante uma demonstração completa e repetível.
+> **Modo MANUAL (hot-seat):** os **dois jogadores são humanos** e jogam no mesmo computador, revezando a vez. A cada turno o programa mostra a mão do jogador da vez e ele escolhe o que fazer — **comprar** (do monte ou do lixo), **baixar** sequências, **encaixar** cartas e **descartar**. Todos os acontecimentos são registrados em um **log** (uma Fila) e, ao final, o programa apura a pontuação e mostra o vencedor.
+>
+> _(A branch `master` contém a versão original em **modo automático**, em que o próprio sistema joga pelos dois jogadores.)_
 
 ---
 
@@ -106,6 +108,9 @@ Vai aparecer o menu:
 
 ```
 ============ BURACO - Trabalho de AED ============
+   Modo MANUAL: 2 jogadores no mesmo computador
+           (hot-seat, revezando a vez)
+--------------------------------------------------
  1 - Jogar uma partida (embaralhamento aleatorio)
  2 - Jogar uma partida (semente fixa - repetivel)
  3 - Mostrar as regras adotadas no trabalho
@@ -114,15 +119,25 @@ Vai aparecer o menu:
 ```
 
 - **Opção 1** — joga uma partida com embaralhamento aleatório (diferente a cada vez).
-- **Opção 2** — pede uma **semente** (um número). A mesma semente gera **sempre a mesma partida** (ótimo para demonstrar e repetir o resultado).
-- **Opção 3** — mostra as regras adotadas.
+- **Opção 2** — pede uma **semente** (um número). A mesma semente **repete a mesma distribuição** de cartas (útil para testar); o resultado, porém, depende das jogadas dos jogadores.
+- **Opção 3** — mostra as regras adotadas **e como jogar**.
 
-> 💡 **Dica para a demonstração:** use a **opção 2** com a semente **`100`**. Ela gera uma partida que termina em **BATIDA** e mostra **todos os tipos de canastra** (limpa, suja, real e meia real).
+### Como jogar (no seu turno)
+
+A tela é **limpa a cada troca de jogador** para preservar o sigilo da mão. No seu turno:
+
+1. **Comprar** — escolha `[1]` 1 carta do **monte** ou `[2]` o **lixo** inteiro.
+2. **Baixar / encaixar** (opcional) — a mão aparece **numerada**, ex.: `[0]A♥ [1]5♥ [2]6♥`.
+   - Para **baixar** um jogo, digite os números das cartas separados por espaço (ex.: `1 2 3`).
+   - Para **encaixar**, escolha o jogo e depois a carta. Jogadas inválidas são recusadas com uma mensagem.
+3. **Descartar** — escolha 1 carta para o lixo; isso encerra o seu turno.
+
+O **morto** é pego automaticamente quando você esvazia a mão pela 1ª vez. A **batida** acontece quando você zera a mão já tendo pegado o morto **e** com ao menos uma canastra.
 
 Ao final, o programa:
 1. salva o **log completo** no arquivo `log_partida.txt`;
-2. imprime o log na tela (na ordem em que tudo aconteceu — comportamento FIFO da Fila);
-3. mostra o **resumo final** com os jogos de cada jogador, o detalhamento da pontuação e o **vencedor**.
+2. mostra o **resumo final** com os jogos de cada jogador, o detalhamento da pontuação e o **vencedor**;
+3. oferece **reproduzir o log** na tela (na ordem em que tudo aconteceu — comportamento FIFO da Fila).
 
 ---
 
